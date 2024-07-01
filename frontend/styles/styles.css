@@ -1,0 +1,58 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#cryptoForm {
+    margin-bottom: 40px;
+}
+
+.spinner-border {
+    margin: 20px auto;
+    display: block;
+}
+
+footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+header{
+    padding: 20px 20px;
+    background-image: url(/frontend/assets/background.jpeg);
+    background-size:cover;
+    flex-direction: column;
+    justify-content: space-between;
+
+    height: 200px;
+
+    font-family: 'poppins', sans-serif;
+}
+
+.navegador {
+    margin: 0;
+    flex-direction:row;
+    justify-content: space-between;
+}
+
+.nav-links{
+    display: flex;
+    text-decoration: none;
+    list-style-type: none;
+    flex-direction: row;
+    justify-content:end;
+    gap: 1rem;
+    
+}
+
+header nav ul li a,
+footer nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+}
+
