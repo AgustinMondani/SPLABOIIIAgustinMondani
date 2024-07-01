@@ -1,28 +1,5 @@
-import {
-    editOne,
-    deleteOne,
-    getAllFetch,
-    getOneFetch,
-    addOneFetch,
-} from "./api.js";
-
-class CryptoBase {
-    constructor(id, nombre, simbolo, fechaCreacion, precioActual) {
-        this.id = id;
-        this.nombre = nombre;
-        this.simbolo = simbolo;
-        this.fechaCreacion = fechaCreacion;
-        this.precioActual = precioActual;
-    }
-}
-
-class Crypto extends CryptoBase {
-    constructor(id, nombre, simbolo, fechaCreacion, precioActual, tipoConsenso, algoritmo) {
-        super(id, nombre, simbolo, fechaCreacion, precioActual);
-        this.tipoConsenso = tipoConsenso;
-        this.algoritmo = algoritmo;
-    }
-}
+import { editOne, deleteOne, getAllFetch, getOneFetch, addOneFetch } from "./api.js";
+import { Crypto } from "./Crypto.js";
 
 document.addEventListener('DOMContentLoaded', inicializar);
 
@@ -31,6 +8,8 @@ function inicializar() {
     let cuerpoTablaCrypto;
     let botonEliminar;
     let botonEliminarTodos;
+    let filtroAlgoritmo;
+    let promedioPrecio;
     let spinner;
     let idEdicion = null;
     let cryptos = [];
@@ -47,12 +26,21 @@ function inicializar() {
         mostrarSpinner();
         try {
             cryptos = await getAllFetch();
-            renderizarTablaCryptos(cryptos);
+            aplicarFiltroYRenderizar();
         } catch (error) {
             console.error('Error cargando cryptos:', error);
         } finally {
             ocultarSpinner();
         }
+    }
+
+    function aplicarFiltroYRenderizar() {
+        const algoritmoSeleccionado = filtroAlgoritmo.value;
+        const cryptosFiltradas = algoritmoSeleccionado 
+            ? cryptos.filter(crypto => crypto.algoritmo === algoritmoSeleccionado)
+            : cryptos;
+        renderizarTablaCryptos(cryptosFiltradas);
+        mostrarPromedioPrecio(cryptosFiltradas);
     }
 
     function renderizarTablaCryptos(cryptos) {
@@ -86,6 +74,16 @@ function inicializar() {
         return fila;
     }
 
+    function mostrarPromedioPrecio(cryptos) {
+        if (cryptos.length === 0) {
+            promedioPrecio.textContent = 'Promedio de Precio: N/A';
+        } else {
+            const totalPrecio = cryptos.reduce((acc, crypto) => acc + parseFloat(crypto.precioActual), 0);
+            const promedio = totalPrecio / cryptos.length;
+            promedioPrecio.textContent = `Promedio de Precio: ${promedio.toFixed(2)}`;
+        }
+    }
+
     async function agregarOActualizarCrypto(evento) {
         evento.preventDefault();
         const id = idEdicion || Date.now().toString();
@@ -106,7 +104,7 @@ function inicializar() {
         try {
             mostrarSpinner();
             if (idEdicion) {
-                editOne(crypto);
+                await editOne(crypto);
             } else {
                 await addOneFetch(crypto);
             }
@@ -139,7 +137,7 @@ function inicializar() {
         if (confirm('¿Estás seguro de querer eliminar esta crypto?')) {
             try {
                 mostrarSpinner();
-                deleteOne(id);
+                await deleteOne(id);
                 await cargarCryptos();
             } catch (error) {
                 console.error('Error eliminando crypto:', error);
@@ -154,7 +152,7 @@ function inicializar() {
             try {
                 mostrarSpinner();
                 for (let crypto of cryptos) {
-                    deleteOne(crypto.id);
+                    await deleteOne(crypto.id);
                 }
                 cryptos = [];
                 await cargarCryptos();
@@ -176,10 +174,13 @@ function inicializar() {
     cuerpoTablaCrypto = document.getElementById('cryptoTableBody');
     botonEliminar = document.getElementById('deleteButton');
     botonEliminarTodos = document.getElementById('deleteAllButton');
+    filtroAlgoritmo = document.getElementById('filtroAlgoritmo');
+    promedioPrecio = document.getElementById('promedioPrecio');
     spinner = document.getElementById('spinner');
 
     formularioCrypto.addEventListener('submit', agregarOActualizarCrypto);
     botonEliminarTodos.addEventListener('click', eliminarTodasCryptos);
+    filtroAlgoritmo.addEventListener('change', aplicarFiltroYRenderizar);
 
     cargarCryptos();
 }
