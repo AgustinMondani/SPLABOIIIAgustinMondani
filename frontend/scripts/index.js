@@ -137,7 +137,7 @@ function inicializar() {
         if (confirm('¿Estás seguro de querer eliminar esta crypto?')) {
             try {
                 mostrarSpinner();
-                await deleteOne(id);
+                deleteOne(id);
                 await cargarCryptos();
             } catch (error) {
                 console.error('Error eliminando crypto:', error);
@@ -152,7 +152,7 @@ function inicializar() {
             try {
                 mostrarSpinner();
                 for (let crypto of cryptos) {
-                    await deleteOne(crypto.id);
+                    deleteOne(crypto.id);
                 }
                 cryptos = [];
                 await cargarCryptos();
